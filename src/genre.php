@@ -9,12 +9,10 @@ if (isset($_POST['user'])) {
         echo "$errstr ($errno)<br />\n";
     } 
     else {
-        fwrite($fp, "$user");
+        fwrite($fp, "genre,$user\n");
+        echo fgets($fp, 128);
         fwrite($fp, "bye\n");
-        while (!feof($fp)) {
-            echo fgets($fp, 128);
-        }
-    fclose($fp);
+        fclose($fp);
     }
 }
 echo "<h3>Welcome to the the Music Database! </h3>";
@@ -22,7 +20,7 @@ echo "<div>";
 
 
 echo <<<_END
-    <form method='post' action='index.php'>$error
+    <form method='post' action='genre.php'>$error
         <div data-role='fieldcontain'>
             <label></label>
             <h3>Find Music Related to the Genre of your choice!</h3>

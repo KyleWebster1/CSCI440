@@ -13,12 +13,10 @@ if (isset($_POST['user'])) {
         echo "$errstr ($errno)<br />\n";
     } 
     else {
-        fwrite($fp, "$user\n");
+        fwrite($fp, "similar_playlists,$user\n");
+        echo fgets($fp, 128);
         fwrite($fp, "bye\n");
-        while (!feof($fp)) {
-            echo fgets($fp, 128);
-        }
-    fclose($fp);
+        fclose($fp);
     }
 }
 echo <<<_END

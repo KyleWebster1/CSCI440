@@ -36,7 +36,7 @@ echo <<<_END
         <br>
         <div data-role='fieldcontain'>
             <label></label>
-            <input data-transition='slide' type='submit' value='Check User'>
+            <input data-transition='slide' type='submit' value='Owned'>
         </div>
     </form>
 _END;
