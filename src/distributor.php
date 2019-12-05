@@ -5,20 +5,24 @@ echo "<h3>Welcome to the the Music Database! </h3>";
 echo "<div>";
 
 
-if (isset($_POST['user'])) {
-    $user = implode("", $_POST);
-
-    $fp = fsockopen("skywhale.science", 42101, $errno, $errstr, 30);
-    if (!$fp) {
-        echo "$errstr ($errno)<br />\n";
+function writeQuery(){
+    if (isset($_POST['user'])) {
+        $user = implode(",", $_POST);
+        $fp = fsockopen("skywhale.science", 42101, $errno, $errstr, 30);
+        if (!$fp) {
+            echo "$errstr ($errno)<br />\n";
+        } 
+        else {
+            fwrite($fp, "distributor,$user\n");
+            $result = fgets($fp, 128);
+            fwrite($fp, "bye\n");
+            fclose($fp);
+        }
     } 
-    else {
-        fwrite($fp, "distributor,$user\n");
-        echo fgets($fp, 128);
-        fwrite($fp, "bye\n");
-        fclose($fp);
-    }
+    echo "<br>Here are your results!<br>";
+    return $result;
 }
+
 echo <<<_END
     <form method='post' action='distributor.php'>$error
         <div data-role='fieldcontain'>
@@ -35,9 +39,9 @@ echo <<<_END
         <br><br>
         <p>Song examples to enter</p>
         <ul>
-        <li>SongID: 667,  SongName: Chicken Nugget Piano </li>
-        <li>SongID: 668,  SongName: Little Hat Gucci</li>
-        <li>SongID: 669,  SongName: Top Hat Swagger</li>
+        <li>Song example: SongID: 12345678 Name: Example</li>
+        <li>Song example: SongID: 4567890876 Name: Temp</li>
+        <li>Song example: SongID: 23456798  Name: Example</li>
         </ul>
         <br>
         <br>
@@ -47,6 +51,14 @@ echo <<<_END
         </div>
     </form>
 _END;
+
+$result = writeQuery();
+$newResult = explode(",", $result);
+for ($x =0; $x <= sizeof($newResult); $x++)
+{
+    echo "$newResult[$x]<br>";
+}
+
 echo <<<_END
     </div><br>
 _END;

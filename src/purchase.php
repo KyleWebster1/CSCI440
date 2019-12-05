@@ -2,20 +2,23 @@
 session_start();
 require_once 'header.php';
 
-if (isset($_POST['user'])) {
-    $user = implode(",", $_POST);
-
-    $fp = fsockopen("skywhale.science", 42101, $errno, $errstr, 30);
-    if (!$fp) {
-        echo "$errstr ($errno)<br />\n";
-    } 
-    else {
-        fwrite($fp, "purchase,$user\n");
-        echo fgets($fp, 128);
-        fwrite($fp, "bye\n");
-        fclose($fp);
+function writeQuery(){
+    if (isset($_POST['user'])) {
+        $user = implode(",", $_POST);
+        $fp = fsockopen("skywhale.science", 42101, $errno, $errstr, 30);
+        if (!$fp) {
+            echo "$errstr ($errno)<br />\n";
+        } 
+        else {
+            fwrite($fp, "purchase,$user\n");
+            $result = fgets($fp, 128);
+            fwrite($fp, "bye\n");
+            fclose($fp);
+        }
     }
+    return $result;
 }
+
 echo "<h3>Welcome to the the Music Database! </h3>";
 echo "<div>";
 
@@ -49,7 +52,12 @@ echo <<<_END
             <input data-transition='slide' type='submit' value='Purchase'>
         </div>
     </form>
+    <br>
 _END;
+
+$result = writeQuery();
+echo $result;
+
 echo <<<_END
     </div><br>
 _END;
