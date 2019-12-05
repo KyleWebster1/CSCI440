@@ -13,12 +13,10 @@ if (isset($_POST['user'])) {
         echo "$errstr ($errno)<br />\n";
     } 
     else {
-        fwrite($fp, "$user\n");
+        fwrite($fp, "add_user,$user\n");
+        echo fgets($fp, 128);
         fwrite($fp, "bye\n");
-        while (!feof($fp)) {
-            echo fgets($fp, 128);
-        }
-    fclose($fp);
+        fclose($fp);
     }
 }
 echo <<<_END
@@ -29,7 +27,7 @@ echo <<<_END
         </div>
         <div data-role='fieldcontain'>
             <label>Create User Name<br></label>
-            <input type='text' maxlength='16' name='user' value='$user1'>
+            <input type='text' maxlength='50' name='user' value='$user'>
             <label></label>
             <!-- <div id='used'>&nbsp;</div> -->
     
@@ -37,19 +35,19 @@ echo <<<_END
         <br><br>
         <div data-role='fieldcontain'>
             <label>First Name<br></label>
-            <input type='text' maxlength='16' name='first' value='$first'>
+            <input type='text' maxlength='50' name='first' value='$first'>
             
         </div>
         <br><br>
         <div data-role='fieldcontain'>
             <label>Last Name<br></label>
-            <input type='text' maxlength='16' name='last' value='$last'>
+            <input type='text' maxlength='50' name='last' value='$last'>
             
         </div>
         <br><br>
         <div data-role='fieldcontain'>
             <label>Email<br></label>
-            <input type='text' maxlength='50' name='last' value='$email'>
+            <input type='text' maxlength='50' name='email' value='$email'>
             
         </div>
         <br><br>
