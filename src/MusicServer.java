@@ -35,34 +35,41 @@ public class MusicServer
 				while ((inLine = in.readLine()) != null)
 				{
 					String[] words = inLine.split(",");
-					switch (words[0])
+					try
 					{
-						case "bye":
-							sock.close();
-							break;
-						case "genre":
-							out.println(server.selectGenreSongs(words[1]));
-							break;
-						case "owned":
-							out.println(server.selectOwnedSongs(words[1]));
-							break;
-						case "user_playlists":
-							out.println(server.selectUserPlaylists(words[1]));
-							break;
-						case "similar_playlists":
-							out.println(server.selectSimilarPlaylists(words[1]));
-							break;
-						case "distributor":
-							out.println(server.selectDistributor(words[1]));
-							break;
-						case "add_user":
-							out.println(server.addUser(words[1], words[2], words[3], words[4]));
-							break;
-						case "purchase":
-							out.println(server.purchaseSong(words[1], words[2]));
-							break;
-						default:
-							out.println("Unknown command - " + words[0]);
+						switch (words[0])
+						{
+							case "bye":
+								sock.close();
+								break;
+							case "genre":
+								out.println(server.selectGenreSongs(words[1]));
+								break;
+							case "owned":
+								out.println(server.selectOwnedSongs(words[1]));
+								break;
+							case "user_playlists":
+								out.println(server.selectUserPlaylists(words[1]));
+								break;
+							case "similar_playlists":
+								out.println(server.selectSimilarPlaylists(words[1]));
+								break;
+							case "distributor":
+								out.println(server.selectDistributor(words[1]));
+								break;
+							case "add_user":
+								out.println(server.addUser(words[1], words[2], words[3], words[4]));
+								break;
+							case "purchase":
+								out.println(server.purchaseSong(words[1], words[2]));
+								break;
+							default:
+								out.println("Unknown command - " + words[0]);
+						}
+					}
+					catch (ArrayIndexOutOfBoundsException e)
+					{
+						out.println(e.getMessage());
 					}
 				}
 			}
@@ -99,7 +106,7 @@ public class MusicServer
 				"WHERE Genre = '" + genre + "'");
 			StringBuilder output = new StringBuilder();
 			while (results.next())
-				output.append(results.getString("Name")).append("\n");
+				output.append(results.getString("Name")).append(",");
 			if (output.length() == 0)
 				output.append("There are no songs listed in that genre.");
 			return output.toString();
@@ -107,7 +114,7 @@ public class MusicServer
 		catch (SQLException e)
 		{
 			System.out.println(e.getMessage());
-			return "Unable to find songs in that genre. See server log for details.";
+			return "Unable to find songs in that genre. " + e.getMessage();
 		}
 	}
 	//returns all the songs owned by the given user
@@ -117,10 +124,10 @@ public class MusicServer
 		{
 			ResultSet results = database.createStatement().executeQuery("SELECT DISTINCT SONG.Name " +
 				"FROM SONG, OWNS " +
-				"WHERE User_ID = " + userId + " AND OWNS.Song_ID = SONG.Song_ID;");
+				"WHERE OWNS.User_ID = '" + userId + "' AND OWNS.Song_ID = SONG.Song_ID;");
 			StringBuilder output = new StringBuilder();
 			while (results.next())
-				output.append(results.getString("Name")).append("\n");
+				output.append(results.getString("Name")).append(",");
 			if (output.length() == 0)
 				output.append("You don't own any music yet!");
 			return output.toString();
@@ -128,7 +135,7 @@ public class MusicServer
 		catch (SQLException e)
 		{
 			System.out.println(e.getMessage());
-			return "Unable to find your songs. See server log for details.";
+			return "Unable to find your songs. " + e.getMessage();
 		}
 	}
 	//returns all the playlists created by a user and the songs contained by each
@@ -138,13 +145,13 @@ public class MusicServer
 		{
 			ResultSet results = database.createStatement().executeQuery("SELECT PLAYLIST.Name, SONG.Name AS Sname " +
 				"FROM PLAYLIST, SONG, HOLDS " +
-				"WHERE PLAYLIST.User_ID = " + userId + " AND PLAYLIST.Playlist_ID = HOLDS.Playlist_ID AND SONG.Song_ID = HOLDS.Song_ID " +
+				"WHERE PLAYLIST.User_ID = '" + userId + "' AND PLAYLIST.Playlist_ID = HOLDS.Playlist_ID AND SONG.Song_ID = HOLDS.Song_ID " +
 				"ORDER BY PLAYLIST.Name LIMIT 5;");
 			StringBuilder output = new StringBuilder();
 			while (results.next())
 			{
 				output.append(results.getString("Name")).append(" - ");
-				output.append(results.getString("Sname")).append("\n");
+				output.append(results.getString("Sname")).append(",");
 			}
 			if (output.length() == 0)
 				output.append("This user does not have any playlists!");
@@ -153,7 +160,7 @@ public class MusicServer
 		catch (SQLException e)
 		{
 			System.out.println(e.getMessage());
-			return "Unable to find the user and/or playlists. See server log for details.";
+			return "Unable to find the user and/or playlists. " + e.getMessage();
 		}
 	}
 	//returns all the playlists containing a given song and the names of the users they were created by
@@ -163,13 +170,13 @@ public class MusicServer
 		{
 			ResultSet results = database.createStatement().executeQuery("SELECT PLAYLIST.Name, USER.UserID " +
 				"FROM PLAYLIST, HOLDS, SONG, USER " +
-				"WHERE SONG.Song_ID =  " + songId + " AND SONG.Song_ID = HOLDS.Song_ID " +
+				"WHERE SONG.Song_ID =  '" + songId + "' AND SONG.Song_ID = HOLDS.Song_ID " +
 				"AND HOLDS.Playlist_ID = PLAYLIST.Playlist_ID AND PLAYLIST.User_ID = USER.User_ID");
 			StringBuilder output = new StringBuilder();
 			while (results.next())
 			{
 				output.append(results.getString("Name")).append(" by ");
-				output.append(results.getString("UserID")).append("\n");
+				output.append(results.getString("User_ID")).append(",");
 			}
 			if (output.length() == 0)
 				output.append("No playlists contain your song.");
@@ -178,7 +185,7 @@ public class MusicServer
 		catch (SQLException e)
 		{
 			System.out.println(e.getMessage());
-			return "Unable to find playlists. See server log for details.";
+			return "Unable to find playlists. " + e.getMessage();
 		}
 	}
 	//returns the name of the record company that distributes a given song
@@ -187,11 +194,11 @@ public class MusicServer
 		try
 		{
 			ResultSet results = database.createStatement().executeQuery("SELECT Name FROM RECORD_COMPANY, DISTRIBUTES, DISTRIBUTOR " +
-				"WHERE DISTRIBUTES.Song_ID = " + songId + " AND DISTRIBUTES.Distributor_ID = DISTRIBUTOR.Distributor_ID " +
+				"WHERE DISTRIBUTES.Song_ID = '" + songId + "' AND DISTRIBUTES.Distributor_ID = DISTRIBUTOR.Distributor_ID " +
 				"AND DISTRIBUTOR.Company_ID = RECORD_COMPANY.Company_ID");
 			StringBuilder output = new StringBuilder();
 			while (results.next())
-				output.append(results.getString("Name")).append("\n");
+				output.append(results.getString("Name")).append(",");
 			if (output.length() == 0)
 				output.append("There is no record company listed for that song.");
 			return output.toString();
@@ -199,7 +206,7 @@ public class MusicServer
 		catch (SQLException e)
 		{
 			System.out.println(e.getMessage());
-			return "Unable to find the distributor. See server log for details.";
+			return "Unable to find the distributor. " + e.getMessage();
 		}
 	}
 
@@ -220,7 +227,7 @@ public class MusicServer
 		catch (SQLException e)
 		{
 			System.out.println(e.getMessage());
-			return "User creation unsuccessful - is your username already taken? See server log for details.";
+			return "User creation unsuccessful - is your username already taken? " + e.getMessage();
 		}
 	}
 	//inserts a relation into the OWNS table
@@ -238,7 +245,7 @@ public class MusicServer
 		catch (SQLException e)
 		{
 			System.out.println(e.getMessage());
-			return "Purchase unsuccessful. See server log for details.";
+			return "Purchase unsuccessful. " + e.getMessage();
 		}
 	}
 }
