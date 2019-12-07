@@ -168,7 +168,7 @@ public class MusicServer
 	{
 		try
 		{
-			ResultSet results = database.createStatement().executeQuery("SELECT PLAYLIST.Name, USER.UserID " +
+			ResultSet results = database.createStatement().executeQuery("SELECT PLAYLIST.Name, USER.User_ID " +
 				"FROM PLAYLIST, HOLDS, SONG, USER " +
 				"WHERE SONG.Song_ID =  '" + songId + "' AND SONG.Song_ID = HOLDS.Song_ID " +
 				"AND HOLDS.Playlist_ID = PLAYLIST.Playlist_ID AND PLAYLIST.User_ID = USER.User_ID");
